@@ -9,7 +9,6 @@ import dash
 import dash_html_components as html
 import dash_core_components as dcc
 from utils import listDirectories
-from neo4j_graph import neograph
 
 image_filename = '../static/logo.png' # replace with your own image
 encoded_logo = base64.b64encode(open(image_filename, 'rb').read())
@@ -19,8 +18,12 @@ encoded_via = base64.b64encode(open('../static/via.jpeg', 'rb').read())
 def main_banner():
     return html.Div([
                  html.Img(src='data:image/png;base64,{}'.format(encoded_logo.decode()), style={'margin': -20}),
-                 html.Img(src='data:image/png;base64,{}'.format(encoded_via.decode()), width=150, height=70, style={'margin': -20, 'float': 'right', 'padding':50}),
-                 html.Img(src='data:image/png;base64,{}'.format(encoded_tukl.decode()), width=335, height=70, style={'margin': -20, 'float': 'right', 'padding':50})
+                 html.Div([html.Img(src='data:image/png;base64,{}'.format(encoded_via.decode()), width=150, height=70),
+                         ], style={'margin': -20, 'float': 'right', 'padding':50}),
+                 html.Div([html.Img(src='data:image/png;base64,{}'.format(encoded_tukl.decode()), width=335, height=70)
+                         ], style={'margin': -20, 'float': 'right', 'padding':50}),
+                 #html.Img(src='data:image/png;base64,{}'.format(encoded_via.decode()), width=150, height=70, style={'margin': -20, 'float': 'right', 'padding':50}),
+                 #html.Img(src='data:image/png;base64,{}'.format(encoded_tukl.decode()), width=335, height=70, style={'margin': -20, 'float': 'right', 'padding':50})
             ], style={'backgroundColor': 'rgb(1, 91, 176)', 'height': '60px', 'margin': -10})
 
 def dropdown_menu():
@@ -47,7 +50,7 @@ def dropdown_banner():
 
 def graph_area():
     return html.Div([
-            dcc.Graph(id='transaction_plot', style={'padding-top':10})
+            dcc.Graph(id='transaction_plot', style={'padding-top':5})
             ])
     
 def dropdown_filter(values):
@@ -67,6 +70,7 @@ def dropdown_channels():
                         {'label': 'EMAILS', 'value': 'EMAILS'}
                         ],
                 value='EMAILS',
+                style={'display':'inline-block', 'width': 100, 'height':'30px', 'padding-right':20}
                 #style={'width':'70%', 'display':'inline-block', 'height':'30px'}
                 )
 
@@ -74,6 +78,7 @@ def dropdown_centrality():
     return dcc.Dropdown(
                 id='ddn_centrality',
                 options=[
+                        {'label': 'None', 'value': 'None'},
                         {'label': 'Page Rank', 'value': 'Rank'},
                         {'label': 'Betweenness Centrality', 'value': 'BCRank'},
                         {'label': 'Article Rank', 'value': 'ArticleRank'},
@@ -83,7 +88,8 @@ def dropdown_centrality():
                         {'label': 'Out Degree Centrality', 'value': 'OutDegreeCentrality'},
                         {'label': 'Eigen Centrality', 'value': 'EigenCentrality'},
                         ],
-                value='Rank',
+                value='None',
+                style={'display':'inline-block', 'width':210, 'height':'30px','padding-right':20}
                 #style={'width':'70%', 'display':'inline-block', 'height':'30px'}
                 )
 
@@ -91,19 +97,22 @@ def dropdown_community():
     return dcc.Dropdown(
                 id='ddn_community',
                 options=[
+                        {'label': 'None', 'value': 'None'},
                         {'label': 'Label Propagation', 'value': 'Community'},
                         {'label': 'Louvian Community', 'value': 'LouvianCommunity'},
                         {'label': 'Weakly Connected Components', 'value': 'WCCCommunity'},
                         {'label': 'Triangle Count', 'value': 'triangleCommunity'},
                         ],
-                value='Community',
+                value='None',
+                style={'display':'inline-block', 'width': 250, 'height':'30px', 'padding-right':20}
                 #style={'width':'70%', 'display':'inline-block', 'height':'30px'}
                 )
 
 def neograph_area():
-    return html.Iframe(id = 'nodelink_plot', style={'border': 'none', 'height': 900, 'width':1400})
+    return html.Iframe(id = 'nodelink_plot', style={'border': 'none', 'height': 710, 'width':540,
+                                                    'overflow': 'hidden', 'border-style':'none'})
 
-    
+'''    
 def analytics_filter():
     return html.Div([
             html.Div([
@@ -127,13 +136,56 @@ def analytics_area():
                     neograph_area()
                     ], style={'width': '70%', 'display':'inline-block'})
             ], style={'display': 'inline-block'})
+'''
+
+def analytics_filter():
+    return html.Div([
+                    #html.H3('Graph Analytics', style={'display': 'inline-block', 'margin':20}),
+                    html.Div([
+                            html.H6('Channel', style={'display': 'inline-block', 'margin':10,
+                                                      'font-family':'Anonymice Powerline',
+                                                      'letter-spacing': '.1rem',
+                                                      'color':'rgb(255, 255, 255)'}),
+                            dropdown_channels(),
+                            ], style={'display': 'inline-block'}),
+                    html.Div([
+                            html.H6('Centrality', style={'display': 'inline-block', 'margin':10,
+                                                         'font-family':'Anonymice Powerline',
+                                                      'letter-spacing': '.1rem',
+                                                      'color':'rgb(255, 255, 255)'}),
+                            dropdown_centrality(),
+                            ], style={'display': 'inline-block'}),                    
+                    html.Div([
+                            html.H6('Community', style={'display': 'inline-block', 'margin':10,
+                                                        'font-family':'Anonymice Powerline',
+                                                      'letter-spacing': '.1rem',
+                                                      'color':'rgb(255, 255, 255)'}),
+                            dropdown_community()
+                            ], style={'display': 'inline-block'}),
+            ], style={'backgroundColor': 'rgba(1, 91, 176, 0.8)', 'height': 50, 'padding-top':15})
+
+def analytics_area():
+    return html.Div([
+            html.Div([
+                    html.Div([
+                            graph_area()
+                    ], style={'width': '70%', 'display':'inline-block'}),
+                    html.Div([
+                            neograph_area()
+                    ], style={'width': '30%', 'display':'inline-block'})
+                ]),
+            ])
+
 
 def main_layout():
     return html.Div([main_banner(),
                      dropdown_banner(),
+                     analytics_filter(),
+                     #graph_area(),
                      analytics_area(),
-                     graph_area(),
-                     html.Pre(id='selected-data')]) 
+                     
+                     #html.Pre(id='selected-data')
+                     ]) 
 
 if __name__ == "__main__":
     external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']

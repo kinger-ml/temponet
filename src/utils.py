@@ -137,7 +137,7 @@ def generate_plot(path):
                     yaxis = dict(
                         type = 'category'
                     ),
-                    height=900
+                    height=750
                 )
     return fig
 
